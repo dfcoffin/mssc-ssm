@@ -39,7 +39,7 @@ public class StateMachineConfig extends StateMachineConfigurerAdapter<PaymentSta
     @Override
     public void configure(StateMachineTransitionConfigurer<PaymentState, PaymentEvent> transitions) throws Exception {
         transitions.withExternal().source(PaymentState.NEW).target(PaymentState.NEW).event(PaymentEvent.PRE_AUTHORIZE)
-                .action(preAuthAction())
+                    .action(preAuthAction())
                 .and()
                 .withExternal().source(PaymentState.NEW).target(PaymentState.PRE_AUTH).event(PaymentEvent.PRE_AUTH_APPROVED)
                 .and()
@@ -47,6 +47,7 @@ public class StateMachineConfig extends StateMachineConfigurerAdapter<PaymentSta
                 //preauth to auth
                 .and()
                 .withExternal().source(PaymentState.PRE_AUTH).target(PaymentState.PRE_AUTH).event(PaymentEvent.AUTHORIZE)
+                    .action(authAction())
                 .and()
                 .withExternal().source(PaymentState.PRE_AUTH).target(PaymentState.AUTH).event(PaymentEvent.AUTH_APPROVED)
                 .and()
@@ -71,13 +72,13 @@ public class StateMachineConfig extends StateMachineConfigurerAdapter<PaymentSta
             System.out.println("PreAuth was called!!!");
 
             if (new Random().nextInt(10) < 8) {
-                System.out.println("Approved");
+                System.out.println("Pre Auth Approved");
                 context.getStateMachine().sendEvent(MessageBuilder.withPayload(PaymentEvent.PRE_AUTH_APPROVED)
                         .setHeader(PaymentServiceImpl.PAYMENT_ID_HEADER, context.getMessageHeader(PaymentServiceImpl.PAYMENT_ID_HEADER))
                         .build());
 
             } else {
-                System.out.println("Declined! No Credit!!!!!!");
+                System.out.println("Pre Auth Declined! No Credit!!!!!!");
                 context.getStateMachine().sendEvent(MessageBuilder.withPayload(PaymentEvent.PRE_AUTH_DECLINED)
                         .setHeader(PaymentServiceImpl.PAYMENT_ID_HEADER, context.getMessageHeader(PaymentServiceImpl.PAYMENT_ID_HEADER))
                         .build());
@@ -90,7 +91,7 @@ public class StateMachineConfig extends StateMachineConfigurerAdapter<PaymentSta
             System.out.println("Auth was called!!!");
 
             if (new Random().nextInt(10) < 8) {
-                System.out.println("Approved");
+                System.out.println("Auth Approved");
                 context.getStateMachine().sendEvent(MessageBuilder.withPayload(PaymentEvent.AUTH_APPROVED)
                         .setHeader(PaymentServiceImpl.PAYMENT_ID_HEADER, context.getMessageHeader(PaymentServiceImpl.PAYMENT_ID_HEADER))
                         .build());
